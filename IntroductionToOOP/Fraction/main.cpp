@@ -1,4 +1,6 @@
 ﻿//Fraction - описываем простую дробь
+#pragma warning (disable:4326)
+#define _CRT_SECURE_NO_WARNINGS
 #include<iostream>
 using namespace std;
 using std::cin;
@@ -8,6 +10,8 @@ using std::endl;
 class Fraction;
 Fraction operator*(Fraction left, Fraction right);
 Fraction operator/(Fraction left, Fraction right);
+Fraction operator+(Fraction left, Fraction right);
+Fraction operator-(Fraction left, Fraction right);
 
 class Fraction
 {
@@ -49,7 +53,7 @@ public:
 		this->denominator = 1;
 		cout << "DefaultConstructor:\t" << this << endl;
 	}
-	Fraction(int integer)
+	explicit Fraction(int integer)
 	{
 		//Single-argument constructor - Конструктор с одним параметром.
 		this->integer = integer;
@@ -100,6 +104,16 @@ public:
 	{
 		return *this = *this / other;
 	}
+	Fraction& operator +=(const Fraction right)
+	{
+		*this = *this + right;
+		return *this;
+	}
+	Fraction& operator -=(const Fraction right)
+	{
+		*this = *this - right;
+		return *this;
+	}
 
 	//Increment\Decrement
 	Fraction& operator++()//Prefix increment
@@ -116,6 +130,17 @@ public:
 		return old;
 	}
 
+	//Type-cast operators
+
+	explicit operator int()const
+	{
+		return integer;
+	}
+	operator double()const
+	{
+		return integer+(double)numerator/denominator;
+	}
+		
 	//				Methods:
 	Fraction& to_proper()
 	{
@@ -207,6 +232,26 @@ Fraction operator*(Fraction left, Fraction right)
 Fraction operator/(Fraction left,Fraction right)
 {
 	return  left * right.inverted();
+}
+Fraction operator +(Fraction left, Fraction right)
+{
+	left.to_improper();
+	right.to_improper();
+	return Fraction
+	(
+		left.get_numerator() + right.get_numerator(),
+		left.get_denominator() + right.get_denominator()
+	).to_proper().reduce();
+}
+Fraction operator -(Fraction left, Fraction right)
+{
+	left.to_improper();
+	right.to_improper();
+	return Fraction
+	(
+		left.get_numerator() - right.get_numerator(),
+		left.get_denominator() - right.get_denominator()
+	).to_proper().reduce();
 }
 
 //Comparison operators
@@ -306,10 +351,16 @@ istream& operator>>(istream& is, Fraction& obj)
 //#define OSTREAM_CHECK
 //#define ARIFMETICAL_OPERATORS_CHECK
 //#define COMPARISON_OPERATORS
+//#define ISTREAM_OPERATOR_CHECK
+//#define TYPE_CONVERSION_BASICS
+//#define CONVERSION_FROM_OTHER_TO_CLASS
+//#define TYPE-CAST_OPERATORS
+
 
 void main()
 {
 	setlocale(LC_ALL, "");
+
 #ifdef CONSTRUCTORS_CHECK
 	Fraction A;		//Default constructor
 	A.print();
@@ -354,6 +405,10 @@ void main()
 	A = B++;
 	cout << A << endl;
 	cout << B << endl;
+	A += B;
+	A -= B;
+	cout << A << endl;
+	cout << B << endl;
 #endif // ARIFMETICAL_OPERATORS_CHECK
 
 #ifdef COMPARISON_OPERATORS
@@ -367,8 +422,48 @@ void main()
 	cout << (A <= B) << endl;
 #endif // COMPARISON_OPERATORS
 
+#ifdef ISTREAM_OPERATOR_CHECK
 	Fraction A;
 	cout << "Read drob`: ";
 	cin >> A;
 	cout << A << endl;
+#endif // ISTREAM_OPERATOR_CHECK
+
+#ifdef TYPE_CONVERSION_BASICS
+	int a = 2;		//No conversions
+	double b = 3;	//Conversion from int to double
+					//from less to more
+	int c = b;		//Conversion from double to int 
+					//from more to less without data loss
+	int d = 4.5;	//Conversion from double to int with data loss
+					//from more to less with data loss
+	cout << d << endl;
+#endif // TYPE_CONVERSION_BASICS
+
+#ifdef CONVERSION_FROM_OTHER_TO_CLASS
+	double a = 2;				//From int to double	(from less to more)
+	Fraction A = (Fraction)5;	//From int to Fraction	(from less to more)
+	cout << A << endl;
+	cout << "\n----------------------------------\n";
+	Fraction B;					//Defoult constructor
+	cout << "\n----------------------------------\n";
+	B = Fraction(8);			//Conversion from int to Fraction
+	cout << "\n----------------------------------\n";
+	cout << B << endl;
+
+	Fraction C(12);				//explicit конструктор можно вызвать такБ и нельзя вызвать так: Fraction C = 12;
+	cout << C << endl;
+#endif // CONVERSION_FROM_OTHER_TO_CLASS
+
+#ifdef TYPE-CAST_OPERATORS
+	//Type-cast operators
+
+	Fraction A(2, 3, 4);
+	int a = (int)A;
+	cout << a << endl;
+	cout << A << endl;
+	double b = (double)A;
+	cout << b << endl;
+#endif // TYPE-CAST_OPERATORS
+
 }
