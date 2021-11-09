@@ -136,7 +136,19 @@ public:
 	{
 		return integer;
 	}
-	operator double()const
+	Fraction(double decimal)
+
+	{
+		decimal += 1e-11;
+		integer = decimal;//Сохраняем целую часть десятичной дроби
+		decimal -= integer;//Убираем целую часть из десятичной дроби
+		denominator = 1e+9;//1 * 10 в девятой степени
+		numerator = decimal * denominator;//Умножаем дробную часть десятичной дроби на 1 000 000 000,
+		//и таким образом вся дробная часть переходит в целую часть. И сохраняем её в числителе.
+		reduce();
+		cout << "doubleConstructor:\t" << this << endl;
+	}
+	explicit operator double()const
 	{
 		return integer+(double)numerator/denominator;
 	}
@@ -166,6 +178,11 @@ public:
 	}
 	Fraction& reduce()
 	{
+		if (numerator == 0)
+		{
+			denominator = 1;
+			return *this;
+		}
 		int more;//большее значение
 		int less;//меньшее значение
 		int rest;//остаток от деления
@@ -355,7 +372,7 @@ istream& operator>>(istream& is, Fraction& obj)
 //#define TYPE_CONVERSION_BASICS
 //#define CONVERSION_FROM_OTHER_TO_CLASS
 //#define TYPE-CAST_OPERATORS
-
+#define conversion_from_class_to_other
 
 void main()
 {
@@ -466,4 +483,12 @@ void main()
 	cout << b << endl;
 #endif // TYPE-CAST_OPERATORS
 
+	Fraction A = 2.76;
+	cout << A.reduce() << endl;
+	Fraction B(2, 76, 100);
+	cout << B << endl;
+	cout << (A == B) << endl;
+
+	Fraction C(1, 3);
+	cout << C * 3 << endl;
 }
